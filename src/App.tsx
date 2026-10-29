@@ -9,7 +9,7 @@ type PortfolioContent = {
   skills: string[]; achievements: string[]; certifications: string[]; projects: { title: string; description: string; tech: string; link: string; image: string }[];
   leadership: string[]; education: { school: string; degree: string; year: string }[]; contact: { github: string; linkedin: string; website: string };
 };
-type PortfolioRow = { id: string; username: string; content: PortfolioContent; template: Template; published: boolean; updated_at: string };
+type PortfolioRow = { id: string; user_id: string; username: string; content: PortfolioContent; template: Template; published: boolean; updated_at: string; title?: string; slug?: string; data?: PortfolioContent };
 
 const emptyContent: PortfolioContent = { fullName: '', headline: '', about: '', email: '', location: '', photo: '', username: '', skills: [], achievements: [], certifications: [], projects: [], leadership: [], education: [], contact: { github: '', linkedin: '', website: '' } };
 const starterContent: PortfolioContent = { ...emptyContent, fullName: 'Your Name', headline: 'Creative developer & curious builder', about: 'Tell the world what you care about, what you build, and where you are heading next.', email: 'hello@example.com', location: 'Mumbai, India', skills: ['React', 'TypeScript', 'Product Design'], achievements: ['Built a community project used by 500+ students'], certifications: ['Google UX Design Professional Certificate'], projects: [{ title: 'Your signature project', description: 'A concise story about the problem you solved and the impact it made.', tech: 'React, TypeScript', link: '', image: '' }], leadership: ['Led the campus technology club for 2 years'], education: [{ school: 'University Name', degree: 'B.Tech in Computer Science', year: '2022 — 2026' }], contact: { github: 'github.com/yourname', linkedin: 'linkedin.com/in/yourname', website: '' } };
@@ -61,6 +61,68 @@ function ContactForm({ content, update }: { content: PortfolioContent; update: (
 
 function PublicPage({ username }: { username: string }) { const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null); const [loading, setLoading] = useState(true); useEffect(() => { void supabase.from('portfolios').select('*').eq('username', username).eq('published', true).maybeSingle().then(({ data }) => { setPortfolio(data as PortfolioRow | null); setLoading(false); }); }, [username]); if (loading) return <div className="public-loading">Loading portfolio…</div>; if (!portfolio) return <div className="public-loading"><h2>Portfolio not found</h2><p>This link may not be published yet.</p></div>; return <div className="public-page"><Preview content={portfolio.content} template={portfolio.template} publicView /></div>; }
 
-function App() { const publicUsername = window.location.pathname.startsWith('/u/') ? window.location.pathname.slice(3).split('/')[0] : (window.location.hash.startsWith('#/u/') ? window.location.hash.slice(4) : ''); const [session, setSession] = useState<{ user: { id: string } } | null>(null); const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null); const [loading, setLoading] = useState(!publicUsername); useEffect(() => { if (publicUsername) return; void supabase.auth.getSession().then(({ data }) => { setSession(data.session as { user: { id: string } } | null); setLoading(false); }); const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession as { user: { id: string } } | null)); return () => listener.subscription.unsubscribe(); }, [publicUsername]); useEffect(() => { if (!session || publicUsername) return; void supabase.from('portfolios').select('*').eq('user_id', session.user.id).maybeSingle().then(async ({ data }) => { if (data) setPortfolio(data as PortfolioRow); else { const { data: created } = await supabase.from('portfolios').insert({ content: starterContent, username: `creator-${session.user.id.slice(0, 8)}` }).select('*').maybeSingle(); setPortfolio(created as PortfolioRow | null); } }); }, [session, publicUsername]); if (publicUsername) return <PublicPage username={publicUsername} />; if (loading) return <div className="public-loading">Preparing your workspace…</div>; if (!session) return <AuthScreen />; if (!portfolio) return <div className="public-loading">Creating your workspace…</div>; return <Editor portfolio={portfolio} onSave={async (content, template, published, username) => { const { data } = await supabase.from('portfolios').update({ content, template, published, username, updated_at: new Date().toISOString() }).eq('id', portfolio.id).select('*').maybeSingle(); if (data) setPortfolio(data as PortfolioRow); }} onLogout={async () => { await supabase.auth.signOut(); setSession(null); }} />; }
+function App() { const publicUsername = window.location.pathname.startsWith('/u/') ? window.location.pathname.slice(3).split('/')[0] : (window.location.hash.startsWith('#/u/') ? window.location.hash.slice(4) : ''); const [session, setSession] = useState<{ user: { id: string } } | null>(null); const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null); const [portfolioError, setPortfolioError] = useState(''); const [loading, setLoading] = useState(!publicUsername); useEffect(() => { if (publicUsername) return; void supabase.auth.getSession().then(({ data }) => { setSession(data.session as { user: { id: string } } | null); setLoading(false); }); const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession as { user: { id: string } } | null)); return () => listener.subscription.unsubscribe(); }, [publicUsername]); useEffect(() => {
+    if (!session || publicUsername) return;
+    let cancelled = false;
+    const loadPortfolio = async () => {
+      setPortfolioError('');
+      const { data, error } = await supabase
+        .from('portfolios')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
 
-export default App;
+      if (cancelled) return;
+      if (error) {
+        console.error('Portfolio lookup failed:', error);
+        setPortfolioError(`Could not load your portfolio: ${error.message}`);
+        return;
+      }
+
+      if (data) {
+        const row = data as PortfolioRow;
+        setPortfolio({
+          ...row,
+          content: (row.content ?? row.data ?? starterContent) as PortfolioContent,
+          template: row.template ?? 'classic-dark',
+          published: row.published ?? false,
+          username: row.username ?? row.slug ?? `creator-${session.user.id.slice(0, 8)}`,
+        });
+        return;
+      }
+
+      const username = `creator-${session.user.id.slice(0, 8)}`;
+      const { data: created, error: createError } = await supabase
+        .from('portfolios')
+        .insert({
+          user_id: session.user.id,
+          title: starterContent.fullName || 'My Portfolio',
+          slug: username,
+          data: starterContent,
+          content: starterContent,
+          template: 'classic-dark',
+          published: false,
+          username,
+        })
+        .select('*')
+        .single();
+
+      if (cancelled) return;
+      if (createError) {
+        console.error('Portfolio creation failed:', createError);
+        setPortfolioError(`Could not create your portfolio: ${createError.message}`);
+        return;
+      }
+
+      const row = created as PortfolioRow;
+      setPortfolio({
+        ...row,
+        content: (row.content ?? row.data ?? starterContent) as PortfolioContent,
+        template: row.template ?? 'classic-dark',
+        published: row.published ?? false,
+        username: row.username ?? row.slug ?? username,
+      });
+    };
+    void loadPortfolio();
+    return () => { cancelled = true; };
+  }, [session, publicUsername]); if (publicUsername) return <PublicPage username={publicUsername} />; if (loading) return <div className="public-loading">Preparing your workspace…</div>; if (!session) return <AuthScreen />;
