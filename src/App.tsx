@@ -584,6 +584,11 @@ function ImagePicker({
   );
 }
 
+/* =========================================================
+   UPDATED PREVIEW COMPONENT
+   Font loading + font application fix included.
+   ========================================================= */
+
 function Preview({
   content,
   template,
@@ -595,11 +600,52 @@ function Preview({
 }) {
   const dark = template !== 'clean-light' && template !== 'minimal-white';
 
+  const selectedFont = content.font || 'Manrope';
+
+  useEffect(() => {
+    const fontId = `google-font-${selectedFont
+      .toLowerCase()
+      .replace(/\s+/g, '-')}`;
+
+    if (document.getElementById(fontId)) return;
+
+    const link = document.createElement('link');
+
+    link.id = fontId;
+    link.rel = 'stylesheet';
+
+    const fontUrl = new URL('https://fonts.googleapis.com/css2');
+
+    fontUrl.searchParams.set(
+      'family',
+      `${selectedFont}:wght@400;500;600;700;800`,
+    );
+
+    fontUrl.searchParams.set('display', 'swap');
+
+    link.href = fontUrl.toString();
+
+    document.head.appendChild(link);
+  }, [selectedFont]);
+
   return (
     <div
       className={`portfolio-preview ${template} ${publicView ? 'public-preview' : ''}`}
-      style={{ fontFamily: content.font || 'Manrope' }}
+      style={{
+        fontFamily: `"${selectedFont}", sans-serif`,
+      }}
     >
+      <style>
+        {`
+          .portfolio-preview,
+          .portfolio-preview *,
+          .portfolio-preview *::before,
+          .portfolio-preview *::after {
+            font-family: "${selectedFont}", sans-serif !important;
+          }
+        `}
+      </style>
+
       <div className="preview-top">
         <span className="preview-brand">
           MYPORTFOLIO<span>.COM</span>
