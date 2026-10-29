@@ -30,3 +30,244 @@ label { display: grid; gap: 8px; margin: 18px 0; color: #52606e; font-size: 11px
 @keyframes pulse { 50% { opacity: .3; } }
 @media (max-width: 1050px) { .auth-shell { grid-template-columns: 1fr; }.auth-story { display: none; }.mobile-brand { display: flex; justify-content: center; margin-bottom: 28px; }.auth-card-wrap { min-height: 100vh; }.workspace { grid-template-columns: 205px 1fr; }.editor-grid { grid-template-columns: 1fr; }.preview-panel { position: static; }.portfolio-preview { min-height: 580px; } }
 @media (max-width: 720px) { .topbar { height: 58px; padding: 0 17px; }.topbar .brand-mark { font-size: 12px; }.menu-button { display: block; color: #617883; }.topbar-actions .ghost-button { padding: 5px; font-size: 0; }.workspace { display: block; }.sidebar { position: fixed; z-index: 10; top: 58px; bottom: 0; left: 0; width: 245px; transform: translateX(-100%); transition: transform .25s; box-shadow: 10px 0 30px #122e3822; }.sidebar.open { transform: translateX(0); }.editor-area { padding: 27px 14px; }.editor-heading { align-items: flex-start; gap: 18px; margin-bottom: 20px; }.editor-heading h1 { font-size: 27px; }.heading-actions { flex-direction: column; gap: 6px; }.heading-actions .outline-button, .heading-actions .primary-button { padding: 9px 10px; font-size: 10px; }.editor-grid { gap: 15px; }.form-content { padding: 23px 18px; }.form-two { grid-template-columns: 1fr; gap: 0; }.portfolio-preview { min-height: 620px; padding: 22px 19px; }.hero-block { min-height: 290px; padding-top: 80px; }.hero-block h1 { font-size: 47px; }.hero-photo, .hero-initials { flex-basis: 75px; width: 75px; height: 75px; }.preview-project p { max-width: 210px; }.auth-card { padding: 29px 22px; }.public-page { padding: 0; }.public-page .portfolio-preview { min-height: 100vh; border-radius: 0; } }
+/* FONT IMPORTS */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ACHIEVEMENTS AND CERTIFICATIONS */
+
+.portfolio-item-form {
+  margin-top: 22px;
+  padding: 17px;
+  border: 1px solid #e2eaed;
+  border-radius: 10px;
+  background: #fbfdfd;
+}
+
+.portfolio-item-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: #233544;
+  font-size: 13px;
+}
+
+.add-item-button {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.preview-items {
+  display: grid;
+  gap: 12px;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid #ffffff20;
+  border-radius: 8px;
+  background: #ffffff08;
+}
+
+.preview-item img {
+  width: 85px;
+  height: 75px;
+  flex: 0 0 85px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.preview-item h3 {
+  margin: 0 0 5px;
+  font-size: 13px;
+}
+
+.preview-item p {
+  margin: 0;
+  color: #b5cbd0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.clean-light .preview-item {
+  border-color: #173f4017;
+  background: #f3f8f8;
+}
+
+.clean-light .preview-item p {
+  color: #70858a;
+}
+
+/* FONT SELECTOR */
+
+.font-picker {
+  display: grid;
+  gap: 9px;
+  margin: 20px 0;
+  color: #52606e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.font-picker select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d9e1e6;
+  border-radius: 7px;
+  color: #1b2839;
+  background: #fbfcfd;
+  font-size: 13px;
+}
+
+/* ADDITIONAL PORTFOLIO THEMES */
+
+.portfolio-preview.minimal-white {
+  color: #202a35;
+  background: linear-gradient(145deg, #ffffff, #edf1f4);
+}
+
+.minimal-white .preview-brand,
+.minimal-white .section-label,
+.minimal-white .eyebrow {
+  color: #64748b;
+}
+
+.minimal-white .hero-about,
+.minimal-white .preview-copy,
+.minimal-white .preview-project p,
+.minimal-white .preview-item p {
+  color: #64748b;
+}
+
+.minimal-white .preview-links a {
+  color: #334155;
+}
+
+.minimal-white .preview-pills span {
+  color: #334155;
+  background: #e8edf2;
+}
+
+.minimal-white .preview-content,
+.minimal-white .preview-project,
+.minimal-white .preview-item {
+  border-color: #33415520;
+}
+
+.portfolio-preview.midnight-blue {
+  background: linear-gradient(
+    140deg,
+    #020617,
+    #172554 65%,
+    #1e3a8a
+  );
+}
+
+.portfolio-preview.royal-purple {
+  background: linear-gradient(
+    140deg,
+    #1e1038,
+    #581c87 65%,
+    #a21caf
+  );
+}
+
+.portfolio-preview.forest-green {
+  background: linear-gradient(
+    140deg,
+    #052e16,
+    #065f46 65%,
+    #0f766e
+  );
+}
+
+.portfolio-preview.sunset-orange {
+  background: linear-gradient(
+    140deg,
+    #431407,
+    #c2410c 65%,
+    #e11d48
+  );
+}
+
+.portfolio-preview.modern-gray {
+  background: linear-gradient(
+    140deg,
+    #111827,
+    #374151 65%,
+    #64748b
+  );
+}
+
+.portfolio-preview.creative-pink {
+  background: linear-gradient(
+    140deg,
+    #500724,
+    #9d174d 65%,
+    #c026d3
+  );
+}
+
+.portfolio-preview.terminal {
+  color: #d1fae5;
+  background: linear-gradient(
+    140deg,
+    #020617,
+    #052e16 65%,
+    #064e3b
+  );
+  font-family: 'Space Grotesk', monospace;
+}
+
+.terminal .preview-brand,
+.terminal .section-label,
+.terminal .eyebrow {
+  color: #4ade80;
+}
+
+.terminal .hero-block h1 {
+  color: #bbf7d0;
+}
+
+.terminal .hero-about,
+.terminal .preview-copy,
+.terminal .preview-project p,
+.terminal .preview-item p {
+  color: #a7f3d0;
+}
+
+.terminal .preview-pills span {
+  color: #86efac;
+  border-color: #4ade8040;
+}
+
+.terminal .preview-content,
+.terminal .preview-project,
+.terminal .preview-item {
+  border-color: #4ade8030;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 720px) {
+  .portfolio-item-form {
+    padding: 13px;
+  }
+
+  .preview-item img {
+    width: 65px;
+    height: 65px;
+    flex-basis: 65px;
+  }
+
+  .template-modal {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px 18px;
+  }
+}
